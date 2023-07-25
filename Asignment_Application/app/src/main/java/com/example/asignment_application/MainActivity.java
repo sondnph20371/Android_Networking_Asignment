@@ -46,10 +46,15 @@ public class MainActivity extends AppCompatActivity {
         fab = findViewById(R.id.fabSach);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
+        adapter = new Sach_Adapter(MainActivity.this, list, new SelecListener() {
+            @Override
+            public void onItemClick(int position) {
+                a = position;
+                openDialog();
 
-
-//        Sach sach = new Sach("1", "2", "3");
-//        list.add(sach);
+            }
+        });
+        recyclerView.setAdapter(adapter);
 
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -71,29 +76,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getData() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.8:3000/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
-        Sach_ApiService apiService = retrofit.create(Sach_ApiService.class);
-        Call<ArrayList<Sach>> call = apiService.getBooks();
-        call.enqueue(new Callback<ArrayList<Sach>>() {
+
+        Sach_ApiService.apiService.getBooks().enqueue(new Callback<ArrayList<Sach>>() {
             @Override
             public void onResponse(Call<ArrayList<Sach>> call, Response<ArrayList<Sach>> response) {
                 if (response.isSuccessful()) {
                     list = response.body();
                     Log.i("Sync", "Success");
                     Log.i("Sync", String.valueOf(list.size()));
-                    adapter = new Sach_Adapter(MainActivity.this, list, new SelecListener() {
-                        @Override
-                        public void onItemClick(int position) {
-                            a = position;
-                            openDialog();
+                    adapter.setSachAdapter(list);
+                    adapter.notifyDataSetChanged();
 
-                        }
-                    });
-                    recyclerView.setAdapter(adapter);
                 } else {
                     Log.i("Sync", "Fail");
                 }
@@ -104,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
     }
 
     private void openDialog() {
@@ -124,16 +119,16 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     String strName = txtname.getText().toString();
                     String strPrice = txtprice.getText().toString();
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("http://192.168.1.8:3000/")
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
-                    Sach_PostService postService = retrofit.create(Sach_PostService.class);
-                    Call<ArrayList<Sach>> call = postService.postData(strName, strPrice);
-                    call.enqueue(new Callback<ArrayList<Sach>>() {
+                    Sach_ApiService.apiService.postData(strName, strPrice).enqueue(new Callback<ArrayList<Sach>>() {
                         @Override
                         public void onResponse(Call<ArrayList<Sach>> call, Response<ArrayList<Sach>> response) {
-
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getApplicationContext(), "Thêm thành công", Toast.LENGTH_LONG).show();
+                                list = response.body();
+                                adapter.setSachAdapter(list);
+                                adapter.notifyDataSetChanged();
+                                dialog.dismiss();
+                            }
                         }
 
                         @Override
@@ -141,9 +136,6 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
-
-                    dialog.dismiss();
-                    getData();
                 }
             });
 
@@ -168,16 +160,16 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     String strName = txtname.getText().toString();
                     String strPrice = txtprice.getText().toString();
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("http://192.168.1.8:3000/")
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
-                    Sach_ApiService apiService = retrofit.create(Sach_ApiService.class);
-                    Call<ArrayList<Sach>> call = apiService.updateBooks(sach.getId(), strName, strPrice);
-                    call.enqueue(new Callback<ArrayList<Sach>>() {
+                    Sach_ApiService.apiService.updateBooks(sach.getId(), strName, strPrice).enqueue(new Callback<ArrayList<Sach>>() {
                         @Override
                         public void onResponse(Call<ArrayList<Sach>> call, Response<ArrayList<Sach>> response) {
-
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getApplicationContext(), "Sửa thành công", Toast.LENGTH_LONG).show();
+                                list = response.body();
+                                adapter.setSachAdapter(list);
+                                adapter.notifyDataSetChanged();
+                                dialog.dismiss();
+                            }
                         }
 
                         @Override
@@ -185,24 +177,23 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
-                    dialog.dismiss();
-                    getData();
+
                 }
             });
 
             btnCancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("http://192.168.1.8:3000/")
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
-                    Sach_ApiService apiService = retrofit.create(Sach_ApiService.class);
-                    Call<ArrayList<Sach>> call = apiService.deleteBooks(sach.getId());
-                    call.enqueue(new Callback<ArrayList<Sach>>() {
+                    Sach_ApiService.apiService.deleteBooks(sach.getId()).enqueue(new Callback<ArrayList<Sach>>() {
                         @Override
                         public void onResponse(Call<ArrayList<Sach>> call, Response<ArrayList<Sach>> response) {
-                            Log.i("Delete", "xóa ok");
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getApplicationContext(), "Xóa thành công", Toast.LENGTH_LONG).show();
+                                list = response.body();
+                                adapter.setSachAdapter(list);
+                                adapter.notifyDataSetChanged();
+                                dialog.dismiss();
+                            }
                         }
 
                         @Override
@@ -210,12 +201,17 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
-                    dialog.dismiss();
-                    getData();
+
                 }
             });
         }
         dialog.show();
+    }
+
+    private void resetData(ArrayList<Sach> list) {
+
+        adapter.notifyDataSetChanged();
+
     }
 
 

@@ -41,6 +41,11 @@ public class Sach_Adapter extends RecyclerView.Adapter<Sach_Adapter.ViewHolder> 
 
     }
 
+    public void setSachAdapter(ArrayList<Sach> list) {
+        this.list = list;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -44,30 +44,37 @@ app.get('/books', function (req, res) {
         .find({
 
         })
+        .lean()
         .then(doc => {
             console.log(doc)
-            res.send(doc);
+            res.send(doc); 
         })
         .catch(err => {
             console.error(err)
         });
+      
 });
 
-app.post('/addBook', (req, res) => {
+app.post('/addBook', async (req, res) => {
     var name = req.body.name;
     var price = req.body.price;
     const book = new Book({ name: name, price: price });
     try {
-        book.save().then(() => { console.log('Book saved') }).catch((err) => { throw err });
+       await book.save().then(() => { console.log('Book saved') }).catch((err) => { throw err });
+       const lists = await Book.find().lean();
+       res.json(lists);
     } catch (error) {
         console.log(error);
     }
+   
 });
 
 app.get('/delete/:id', async (req, res) => {
 
     try {
         await Book.findByIdAndDelete(req.params.id);
+        const lists = await Book.find().lean();
+        res.json(lists);
     } catch (error) {
         res.sendStatus(500);
     }
@@ -78,6 +85,8 @@ app.post('/update', async (req, res) => {
     var price = req.body.price;
     try {
         await Book.findByIdAndUpdate(req.body.id, {name, price});
+        const lists = await Book.find().lean();
+        res.json(lists);
     } catch (error) {
         res.sendStatus(500);
     }
