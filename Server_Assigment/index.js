@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const { User } = require("./model/use.js");
-const { Clothes } = require("./model/Clothes.js");
 const { Book } = require("./model/Book.js");
 const e = require('express');
 var app = express();
@@ -47,12 +46,12 @@ app.get('/books', function (req, res) {
         .lean()
         .then(doc => {
             console.log(doc)
-            res.send(doc); 
+            res.send(doc);
         })
         .catch(err => {
             console.error(err)
         });
-      
+
 });
 
 app.post('/addBook', async (req, res) => {
@@ -60,13 +59,13 @@ app.post('/addBook', async (req, res) => {
     var price = req.body.price;
     const book = new Book({ name: name, price: price });
     try {
-       await book.save().then(() => { console.log('Book saved') }).catch((err) => { throw err });
-       const lists = await Book.find().lean();
-       res.json(lists);
+        await book.save().then(() => { console.log('Book saved') }).catch((err) => { throw err });
+        const lists = await Book.find().lean();
+        res.json(lists);
     } catch (error) {
         console.log(error);
     }
-   
+
 });
 
 app.get('/delete/:id', async (req, res) => {
@@ -84,7 +83,7 @@ app.post('/update', async (req, res) => {
     var name = req.body.name;
     var price = req.body.price;
     try {
-        await Book.findByIdAndUpdate(req.body.id, {name, price});
+        await Book.findByIdAndUpdate(req.body.id, { name, price });
         const lists = await Book.find().lean();
         res.json(lists);
     } catch (error) {
@@ -97,52 +96,36 @@ app.post('/update', async (req, res) => {
 
 
 
-// login logic
-// app.get('/login', (req, res) => {
-//     res.render('login');
-// });
-
-// app.get('/home', async (req, res) => {
-//     const data = await User.find();
-//     const dataProduct = await Clothes.find();
-
-//     res.render(
-//         'home',
-//         { titile: "Long", users: data.map(user => user.toJSON()), products: dataProduct.map(product => product.toJSON()) }
-//     );
-// });
-
-// app.post('/login', (req, res) => {
-//     var email = req.body.email;
-//     var password = req.body.password;
-//     User.findOne({
-//         email: email,
-//         password: password
-//     })
-//         .then(data => {
-//             res.redirect('home', data);
-//         })
-//         .catch(err =>
-//             console.log(err)
-//         );
-// });
+// login logic 
+app.post('/login', async (req, res) => {
+    var name = req.body.name;
+    var password = req.body.password;
+    
+    const iname = await User.findOne({ name });
+    if(!iname) return res.send(false);
+    const ipass = iname.password == password;
+    if(ipass) return res.send(true);
+    return res.send(false);
+    
+});
 
 
 
 
 // đăng ký tài khoản
-// app.get('/signup', (req, res) => {
-//     res.render('signup');
-// });
-
-
-
-// app.post('/signup', async (req, res) => {
-//     User.create(req.body).then(data => {
-//         res.json("Tạo tài khoản thành công");
-//     });
-//     res.redirect('login');
-// });
+app.post('/signup', async (req, res) => {
+    var name = req.body.name;
+    var email = req.body.email;
+    var password = req.body.password;
+    var check = true;
+    const user = new User({ name, email, password });
+    try {
+        await user.save().then(() => { console.log('User saved') }).catch((err) => { throw err });
+        res.send(check);
+    } catch (error) {
+        res.sendStatus(500);
+    }
+});
 
 // thêm sản phẩm bán hàng
 // app.get('/addnewProduct', (req, res) => {

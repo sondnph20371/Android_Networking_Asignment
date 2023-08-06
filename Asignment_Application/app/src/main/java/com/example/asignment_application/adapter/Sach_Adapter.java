@@ -1,15 +1,10 @@
 package com.example.asignment_application.adapter;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,17 +12,9 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.asignment_application.R;
-import com.example.asignment_application.apiService.Sach_ApiService;
-import com.example.asignment_application.apiService.Sach_PostService;
 import com.example.asignment_application.model.Sach;
 
 import java.util.ArrayList;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Sach_Adapter extends RecyclerView.Adapter<Sach_Adapter.ViewHolder> {
     private Context context;
